@@ -1,4 +1,3 @@
-// src/components/ThemeToggleButton.jsx
 import { useContext } from 'react';
 import { ThemeContext } from '../context/ThemeContext';
 
