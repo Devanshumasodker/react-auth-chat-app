@@ -1,25 +1,26 @@
+// src/pages/HomePage.jsx
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useGetPostsQuery } from '../utils/authApi';
+import ChatSidebar from '../components/ChatSidebar'; // 👈 Make sure this path is correct
 
 const HomePage = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
   const [skip, setSkip] = useState(0);
+  const [isChatOpen, setIsChatOpen] = useState(false); // 👈 Chat state
   const limit = 10;
 
   const { data, isLoading, isError } = useGetPostsQuery({ limit, skip });
 
-  // Redirect if no user in localStorage
   useEffect(() => {
     const userData = localStorage.getItem('user');
     if (!userData) navigate('/');
     else setUser(JSON.parse(userData));
   }, [navigate]);
 
-  // Append posts when new data comes in
   useEffect(() => {
     if (data?.posts?.length) {
       setPosts((prev) => [...prev, ...data.posts]);
@@ -35,17 +36,15 @@ const HomePage = () => {
   const hasMore = data ? posts.length < data.total : true;
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-white">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-white relative">
       {/* Navbar */}
       <nav className="flex justify-between items-center px-6 py-4 bg-white dark:bg-gray-800 shadow">
         <h1 className="text-xl font-bold">React Auth Chat App</h1>
-        <div>
-          {user && (
-            <span className="text-sm font-medium">
-              Welcome, <span className="font-bold">{user.username}</span>
-            </span>
-          )}
-        </div>
+        {user && (
+          <span className="text-sm font-medium">
+            Welcome, <span className="font-bold">{user.username}</span>
+          </span>
+        )}
       </nav>
 
       {/* Feed Section */}
@@ -77,6 +76,17 @@ const HomePage = () => {
           </InfiniteScroll>
         )}
       </main>
+
+      {/* Chat Button */}
+      <button
+        className="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg z-50"
+        onClick={() => setIsChatOpen((prev) => !prev)}
+      >
+        💬
+      </button>
+
+      {/* Chat Sidebar */}
+      <ChatSidebar isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
     </div>
   );
 };
